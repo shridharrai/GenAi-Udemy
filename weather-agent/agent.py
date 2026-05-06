@@ -1,11 +1,18 @@
 from dotenv import load_dotenv
 from openai import OpenAI
+from pydantic import BaseModel, Field
+from typing import Optional
 import requests
 import json
+import os
 
 load_dotenv()
 
 client = OpenAI()
+
+def run_command(cmd: str):
+    result = os.system(cmd)
+    return result
 
 
 def get_weather(city):
@@ -18,7 +25,7 @@ def get_weather(city):
     return "Something went wrong"
 
 
-available_tools = {"get_weather": get_weather}
+available_tools = {"get_weather": get_weather, "run_command": run_command}
 
 SYSTEM_PROMPT = """
     You're an expert AI Assistant in resolving user queries using chain of thought.
@@ -38,6 +45,7 @@ SYSTEM_PROMPT = """
 
     Available Tools:
     - get_weather(city: str): Takes city name as an input string and returns the weather info about the city.
+    - run_command(cmd: str): Takes a system linux command as string and executes the command on user's system and returns the output from that command
     
     Example 1:
     START: Hey, Can you solve 2 + 3 * 5 / 10
@@ -67,6 +75,12 @@ SYSTEM_PROMPT = """
 
 print("\n\n\n")
 
+class MyOutputFormat(BaseModel):
+    step: str = Field(..., description="The ID of the step. Example: PLAN, OUTPUT, TOOL, etc")
+    content: Optional[str] = Field(None, description="The optional string content for the step")
+    tool: Optional[str] = Field(None, description="The ID of the tool to call")
+    input: Optional[str] = Field(None, description="The input params for the tool")
+
 message_history = [{"role": "system", "content": SYSTEM_PROMPT}]
 
 while True:
@@ -74,22 +88,22 @@ while True:
     message_history.append({"role": "user", "content": user_query})
 
     while True:
-        response = client.chat.completions.create(
+        response = client.chat.completions.parse(
             model="gpt-4o",
-            response_format={"type": "json_object"},
+            response_format=MyOutputFormat,
             messages=message_history,
         )
 
         raw_result = response.choices[0].message.content
         message_history.append({"role": "assistant", "content": raw_result})
-        parsed_result = json.loads(raw_result)
+        parsed_result = response.choices[0].message.parsed
 
-        if parsed_result.get("step") == "START":
-            print("🔥", parsed_result.get("content"))
+        if parsed_result.step == "START":
+            print("🔥", parsed_result.content)
             continue
-        if parsed_result.get("step") == "TOOL":
-            tool_to_call = parsed_result.get("tool")
-            tool_input = parsed_result.get("input")
+        if parsed_result.step == "TOOL":
+            tool_to_call = parsed_result.tool
+            tool_input = parsed_result.input
             tool_response = available_tools[tool_to_call](tool_input)
             print(f"🛠️: {tool_to_call} ({tool_input}) = {tool_response}")
 
@@ -108,9 +122,9 @@ while True:
             )
             continue
 
-        if parsed_result.get("step") == "PLAN":
-            print("🧠", parsed_result.get("content"))
+        if parsed_result.step == "PLAN":
+            print("🧠", parsed_result.content)
             continue
-        if parsed_result.get("step") == "OUTPUT":
-            print("🤖", parsed_result.get("content"))
+        if parsed_result.step == "OUTPUT":
+            print("🤖", parsed_result.content)
             break
