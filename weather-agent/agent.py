@@ -10,6 +10,7 @@ load_dotenv()
 
 client = OpenAI()
 
+
 def run_command(cmd: str):
     result = os.system(cmd)
     return result
@@ -75,11 +76,17 @@ SYSTEM_PROMPT = """
 
 print("\n\n\n")
 
+
 class MyOutputFormat(BaseModel):
-    step: str = Field(..., description="The ID of the step. Example: PLAN, OUTPUT, TOOL, etc")
-    content: Optional[str] = Field(None, description="The optional string content for the step")
+    step: str = Field(
+        ..., description="The ID of the step. Example: PLAN, OUTPUT, TOOL, etc"
+    )
+    content: Optional[str] = Field(
+        None, description="The optional string content for the step"
+    )
     tool: Optional[str] = Field(None, description="The ID of the tool to call")
     input: Optional[str] = Field(None, description="The input params for the tool")
+
 
 message_history = [{"role": "system", "content": SYSTEM_PROMPT}]
 
