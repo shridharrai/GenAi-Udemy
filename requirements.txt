@@ -5,6 +5,7 @@ annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.13.0
 attrs==26.1.0
+backoff==2.2.1
 certifi==2026.2.25
 cffi==2.0.0
 charset-normalizer==3.4.7
@@ -60,6 +61,7 @@ markdown-it-py==4.0.0
 MarkupSafe==3.0.3
 marshmallow==3.26.2
 mdurl==0.1.2
+mem0ai==2.0.2
 multidict==6.7.1
 mypy_extensions==1.1.0
 numpy==2.4.4
@@ -69,8 +71,9 @@ orjson==3.11.9
 ormsgpack==1.12.2
 packaging==26.2
 portalocker==3.2.0
+posthog==7.14.0
 propcache==0.4.1
-protobuf==7.34.1
+protobuf==6.33.6
 pyasn1==0.6.3
 pyasn1_modules==0.4.2
 pycparser==3.0
@@ -85,6 +88,7 @@ pypdf==6.10.2
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 python-multipart==0.0.26
+pytz==2026.2
 PyYAML==6.0.3
 qdrant-client==1.17.1
 redis==7.4.0
