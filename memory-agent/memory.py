@@ -23,6 +23,14 @@ config = {
         "provider": "qdrant",
         "config": {"host": "localhost", "port": 6333},
     },
+    "graph_store": {
+        "provider": "neo4j",
+        "config": {
+            "url": "neo4j+s://ad8b9605.databases.neo4j.io",
+            "username": "ad8b9605",
+            "password": "5HECHsgFDX4_4r69pC8Gt3xaRTl9Vjo0Rkak1yv2Z94",
+        },
+    },
 }
 
 mem_client = Memory.from_config(config)
